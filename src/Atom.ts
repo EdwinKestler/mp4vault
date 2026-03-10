@@ -9,7 +9,7 @@ export class Atom {
 	size: number;
 	header_size: number;
 	mother: Atom | null;
-	childs: Atom[];
+	children: Atom[];
 	contents: number[] | null;
 
 	constructor(params: {
@@ -26,20 +26,20 @@ export class Atom {
 		this.size = params.size;
 		this.header_size = params.header_size;
 		this.mother = params.mother || null;
-		this.childs = [];
+		this.children = [];
 		this.contents = null;
 	}
 
 	findAtoms(atoms: Atom[] | null, name: string): Atom[] {
-		atoms = atoms || this.childs;
+		atoms = atoms || this.children;
 
 		let ret: Atom[] = [];
 		for (const a of atoms) {
 			if (a.name === name) {
 				ret.push(a);
 			}
-			if (a.childs.length) {
-				ret = ret.concat(this.findAtoms(a.childs, name));
+			if (a.children.length) {
+				ret = ret.concat(this.findAtoms(a.children, name));
 			}
 		}
 
@@ -115,8 +115,8 @@ export class Atom {
 	}
 
 	async writePayload(writable: IWritable): Promise<void> {
-		if (this.childs.length) {
-			for (const a of this.childs) {
+		if (this.children.length) {
+			for (const a of this.children) {
 				await a.write(writable);
 			}
 		} else {

@@ -7,10 +7,10 @@ import { Writable } from './node/Writable.js';
 import debug from 'debug';
 import type { IReadable, IWritable, FileRecord } from './types.js';
 
-const log = debug('mp4steg');
+const log = debug('mp4vault');
 
 export class MP4 {
-	private _analized = false;
+	private _analyzed = false;
 	_readable: IReadable | null = null;
 	private _embed: Embed | null = null;
 	private _key: Buffer | null = null;
@@ -41,7 +41,7 @@ export class MP4 {
 			throw new Error('filename is required');
 		}
 		this._readable = new Readable(params);
-		await this.analizeFile();
+		await this.analyzeFile();
 		await this._readable.close();
 	}
 
@@ -259,13 +259,13 @@ export class MP4 {
 		return writable;
 	}
 
-	async analizeFile(): Promise<Atom[]> {
+	async analyzeFile(): Promise<Atom[]> {
 		this._atoms = [];
 
 		const size = await this._readable!.size();
 		await this.parseAtoms(0, size, null);
 
-		this._analized = true;
+		this._analyzed = true;
 
 		const mdat = this.findAtom('mdat')!;
 		this._initialMdatStart = mdat.start + mdat.header_size;
@@ -284,23 +284,23 @@ export class MP4 {
 		atoms = atoms || this._atoms;
 		for (const a of atoms) {
 			console.log(a.start, ''.padStart(level, '-'), a.name, a.size, a.header_size);
-			if (a.childs.length) {
-				this.printAtoms(a.childs, level + 1);
+			if (a.children.length) {
+				this.printAtoms(a.children, level + 1);
 			}
 		}
 	}
 
 	findAtom(name: string): Atom | null {
-		if (!this._analized) {
-			throw new Error('Run await analizeFile() first');
+		if (!this._analyzed) {
+			throw new Error('Run await analyzeFile() first');
 		}
 		const atoms = this.findAtoms(null, name);
 		return atoms.length ? atoms[0] : null;
 	}
 
 	findAtoms(atoms: Atom[] | null, name: string): Atom[] {
-		if (!this._analized) {
-			throw new Error('Run await analizeFile() first');
+		if (!this._analyzed) {
+			throw new Error('Run await analyzeFile() first');
 		}
 
 		atoms = atoms || this._atoms;
@@ -310,8 +310,8 @@ export class MP4 {
 			if (a.name === name) {
 				ret.push(a);
 			}
-			if (a.childs.length) {
-				ret = ret.concat(this.findAtoms(a.childs, name));
+			if (a.children.length) {
+				ret = ret.concat(this.findAtoms(a.children, name));
 			}
 		}
 
@@ -346,7 +346,7 @@ export class MP4 {
 			});
 
 			if (mother) {
-				mother.childs.push(atom);
+				mother.children.push(atom);
 			} else {
 				this._atoms.push(atom);
 			}

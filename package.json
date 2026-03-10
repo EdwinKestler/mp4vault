@@ -1,5 +1,5 @@
 {
-  "name": "mp4steg",
+  "name": "@h3l1os/mp4vault",
   "version": "2.0.0",
   "description": "Hide and extract files within MP4 video containers with AES-256-GCM encryption",
   "type": "module",
@@ -20,14 +20,37 @@
   },
   "files": [
     "dist",
+    "!dist/*.map",
     "src"
   ],
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "build": "tsup",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "mp4",
+    "vault",
+    "secure",
+    "embed",
+    "extract",
+    "encryption",
+    "aes-256-gcm",
+    "video",
+    "container"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/h3l1os/mp4vault.git"
+  },
+  "homepage": "https://github.com/h3l1os/mp4vault",
+  "bugs": {
+    "url": "https://github.com/h3l1os/mp4vault/issues"
   },
   "dependencies": {
     "debug": "^4.3.1",
@@ -41,6 +64,6 @@
     "typescript": "^5.9.3",
     "vitest": "^4.0.18"
   },
-  "author": "",
-  "license": "ISC"
+  "author": "h3l1os",
+  "license": "AGPL-3.0"
 }
