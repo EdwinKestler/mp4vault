@@ -46,11 +46,11 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/h3l1os/mp4vault.git"
+    "url": "https://github.com/h3l1os-sol/mp4vault.git"
   },
-  "homepage": "https://github.com/h3l1os/mp4vault",
+  "homepage": "https://github.com/h3l1os-sol/mp4vault",
   "bugs": {
-    "url": "https://github.com/h3l1os/mp4vault/issues"
+    "url": "https://github.com/h3l1os-sol/mp4vault/issues"
   },
   "dependencies": {
     "debug": "^4.3.1",
@@ -64,6 +64,6 @@
     "typescript": "^5.9.3",
     "vitest": "^4.0.18"
   },
-  "author": "h3l1os",
+  "author": "h3l1os-sol",
   "license": "AGPL-3.0"
 }
