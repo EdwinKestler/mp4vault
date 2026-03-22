@@ -21,24 +21,10 @@
 - Pushed to `upstream` remote
 - TODO: rename local folder `mv ~/github/mp4steg ~/github/mp4vault`
 
-### 2.3 h3l1os-anchor repo (Solana program)
-- Create `h3l1os-sol/h3l1os-anchor` on GitHub
-- From PowerShell (Windows):
-```powershell
-cd D:\github\pepperwatch-anchor
-git remote set-url origin https://github.com/h3l1os-sol/h3l1os-anchor.git
-git push -u origin master
-```
-- Rename local folder: `Rename-Item D:\github\pepperwatch-anchor h3l1os-anchor`
-- Update in files:
-  - `Anchor.toml` — program name, paths
-  - `Cargo.toml` — package name
-  - `programs/pepperwatch-anchor/` — rename directory
-  - `programs/pepperwatch-anchor/Cargo.toml` — crate name
-  - `lib.rs` — `declare_id!()` stays the same (same program ID)
-  - `tests/pepperwatch-anchor.ts` — import paths
-  - `CLAUDE.md` — references
-  - IDL/types will regenerate on next `anchor build`
+### 2.3 h3l1os-anchor repo (Solana program) — DONE
+- Repo: https://github.com/h3l1os-sol/h3l1os-anchor
+- Local: `D:\github\pepperwatch-anchor\programs\h3l1os-anchor\`
+- Deployed to Solana devnet successfully
 
 ### 2.4 h3l1os-next repo (Next.js frontend)
 - Create `h3l1os-sol/h3l1os-next` on GitHub
@@ -97,19 +83,9 @@ Embed/extract now runs server-side via Next.js API routes instead of in the brow
 
 ---
 
-## Phase 4: Update h3l1os-anchor references in frontend
-
-### 4.1 Regenerate IDL
-```bash
-# From PowerShell: D:\github\h3l1os-anchor
-anchor build
-```
-- Copy new IDL to frontend if program name changed
-
-### 4.2 Update frontend Anchor integration
-- Update IDL import path in frontend
-- Update program name in any `Program` constructor calls
-- Program ID stays the same — no redeployment needed unless you want a fresh deploy
+## Phase 4: Update h3l1os-anchor references in frontend — DONE
+- Anchor program rebranded and deployed to devnet
+- IDL regenerated from `anchor build`
 
 ---
 
