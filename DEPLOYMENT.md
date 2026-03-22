@@ -1,36 +1,25 @@
 # Deployment Steps — h3l1os Ecosystem
 
-## Phase 1: npm Organization & Package
+## Phase 1: npm Organization & Package (DONE)
 
-### 1.1 Create npm org
-- Go to https://www.npmjs.com/org/create
-- Create org: `h3l1os`
-- Set visibility: public
+### 1.1 Create npm org — DONE
+- npm org: `h3l1os` at https://www.npmjs.com/org/h3l1os
 
-### 1.2 Publish @h3l1os/mp4vault
-```bash
-# From WSL: ~/github/mp4steg
-npm login
-npm publish --access public
-```
-- Verify at https://www.npmjs.com/package/@h3l1os/mp4vault
+### 1.2 Publish @h3l1os/mp4vault — DONE
+- Published: https://www.npmjs.com/package/@h3l1os/mp4vault
+- Version: 2.0.0
 
 ---
 
 ## Phase 2: GitHub Repos — Rename & Create
 
-### 2.1 GitHub org
-- Org already exists: https://github.com/h3l1os-sol
+### 2.1 GitHub org — DONE
+- Org: https://github.com/h3l1os-sol
 
-### 2.2 mp4vault repo
-- Create `h3l1os-sol/mp4vault` on GitHub
-- Push from WSL:
-```bash
-cd ~/github/mp4steg
-git remote set-url origin https://github.com/h3l1os-sol/mp4vault.git
-git push -u origin master
-```
-- Optionally rename local folder: `mv ~/github/mp4steg ~/github/mp4vault`
+### 2.2 mp4vault repo — DONE
+- Repo: https://github.com/h3l1os-sol/mp4vault
+- Pushed to `upstream` remote
+- TODO: rename local folder `mv ~/github/mp4steg ~/github/mp4vault`
 
 ### 2.3 h3l1os-anchor repo (Solana program)
 - Create `h3l1os-sol/h3l1os-anchor` on GitHub

@@ -46,7 +46,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/h3l1os-sol/mp4vault.git"
+    "url": "git+https://github.com/h3l1os-sol/mp4vault.git"
   },
   "homepage": "https://github.com/h3l1os-sol/mp4vault",
   "bugs": {
