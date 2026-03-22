@@ -19,22 +19,22 @@
 ### 2.2 mp4vault repo — DONE
 - Repo: https://github.com/h3l1os-sol/mp4vault
 - Pushed to `upstream` remote
-- TODO: rename local folder `mv ~/github/mp4steg ~/github/mp4vault`
+- Local folder renamed to `~/github/mp4vault` ✓
 
 ### 2.3 h3l1os-anchor repo (Solana program) — DONE
 - Repo: https://github.com/h3l1os-sol/h3l1os-anchor
-- Local: `D:\github\pepperwatch-anchor\programs\h3l1os-anchor\`
+- Local: `D:\github\h3l1os-anchor\programs\h3l1os-anchor\`
 - Deployed to Solana devnet successfully
 
 ### 2.4 h3l1os-next repo (Next.js frontend)
 - Create `h3l1os-sol/h3l1os-next` on GitHub
 - From WSL:
 ```bash
-cd ~/github/pepperwatch-next
+cd ~/github/h3l1os-next
 git remote set-url origin https://github.com/h3l1os-sol/h3l1os-next.git
 git push -u origin master
 ```
-- Rename local folder: `mv ~/github/pepperwatch-next ~/github/h3l1os-next`
+- Local folder: `~/github/h3l1os-next`
 
 ---
 
@@ -42,9 +42,9 @@ git push -u origin master
 
 All code changes below have already been applied:
 
-### 3.1 Replace mp4steg dependency
+### 3.1 Replace mp4vault dependency
 ```bash
-cd ~/github/pepperwatch-next
+cd ~/github/h3l1os-next
 npm uninstall mp4steg
 npm install @h3l1os/mp4vault
 ```
@@ -74,12 +74,12 @@ Embed/extract now runs server-side via Next.js API routes instead of in the brow
 - **`next.config.ts`** — added `serverExternalPackages: ["@h3l1os/mp4vault"]`
 
 ### 3.6 Still TODO after npm publish
-- Delete `scripts/patch-mp4steg.js`
-- Remove `"postinstall": "node scripts/patch-mp4steg.js"` from package.json
-- Remove `"mp4steg": "github:PepperWatch/mp4steg"` from dependencies
+- Delete `scripts/patch-mp4steg.js` (old patch script)
+- Remove `"postinstall": "node scripts/patch-mp4steg.js"` from package.json (old postinstall hook)
+- Remove old `"mp4steg"` entry from dependencies
 - Remove or gut `StegProvider.tsx` (no longer needed — crypto is server-side)
 - Remove `StegProvider` from root layout (`src/app/layout.tsx`)
-- Rename pepperwatch references throughout codebase
+- Rename remaining old references throughout codebase
 
 ---
 
