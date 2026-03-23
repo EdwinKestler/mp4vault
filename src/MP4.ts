@@ -53,7 +53,7 @@ export class MP4 {
 		password?: string | null;
 	}): Promise<void> {
 		if (!this._embed) {
-			this._embed = new Embed({ mp4: this, key: this._key, password: this._password });
+			this._embed = new Embed({ key: this._key, password: this._password });
 		}
 		await this._embed.addFile(params);
 	}
@@ -174,7 +174,7 @@ export class MP4 {
 		const mdat = this.findAtom('mdat')!;
 		const offset = mdat.start + mdat.header_size;
 
-		this._initialEmbed = new Embed({ mp4: this });
+		this._initialEmbed = new Embed();
 		await this._initialEmbed.restoreFromReadable(
 			this._readable!,
 			{ key: this._key || undefined, password: this._password },

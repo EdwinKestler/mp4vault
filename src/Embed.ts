@@ -21,7 +21,6 @@ export class Embed {
 	private _password: string | null;
 
 	constructor(params: {
-		mp4?: unknown;
 		key?: Buffer | null;
 		password?: string | null;
 	} = {}) {

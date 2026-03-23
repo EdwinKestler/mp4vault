@@ -1,5 +1,7 @@
 package-lock.json
 test/*.mp4
+*:Zone.Identifier
+
 # Logs
 logs
 *.log
