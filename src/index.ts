@@ -1,4 +1,5 @@
 export { MP4 } from './MP4.js';
+export { ImageVault } from './ImageVault.js';
 export { AES } from './AES.js';
 export { Convert } from './Convert.js';
 export { Atom } from './Atom.js';

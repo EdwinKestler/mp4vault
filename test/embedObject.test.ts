@@ -12,6 +12,7 @@ describe('EmbedObject', () => {
 		await embedObject.writeTo(writable);
 		const readable = await writable.toReadable();
 		const restored = await EmbedObject.restoreFromReadable(readable);
+		await readable.close();
 
 		expect(restored.object!.test).toBe(object.test);
 	});
@@ -24,6 +25,7 @@ describe('EmbedObject', () => {
 		await embedObject.writeTo(writable);
 		const readable = await writable.toReadable();
 		const restored = await EmbedObject.restoreFromReadable(readable, { password: 'test' });
+		await readable.close();
 
 		expect(restored.object!.test).toBe(object.test);
 	});
@@ -37,6 +39,7 @@ describe('EmbedObject', () => {
 		await embedObject.writeTo(writable);
 		const readable = await writable.toReadable();
 		const restored = await EmbedObject.restoreFromReadable(readable, { key });
+		await readable.close();
 
 		expect(restored.object!.test).toBe(object.test);
 	});
@@ -56,6 +59,7 @@ describe('EmbedObject', () => {
 		await embedObject.writeTo(writable);
 		const readable = await writable.toReadable();
 		const restored = await EmbedObject.restoreFromReadable(readable, { key });
+		await readable.close();
 
 		const obj = restored.object as Record<string, unknown>;
 		expect(obj.test).toBe('13');
@@ -87,6 +91,7 @@ describe('EmbedObject', () => {
 		const readable = await writable.toReadable();
 		const restored = await EmbedObject.restoreFromReadable(readable, { key }, 100000);
 		const restored2 = await EmbedObject.restoreFromReadable(readable, { key }, 100000 + 100000 + expectedSize);
+		await readable.close();
 
 		expect(restored.object!.test).toBe(object.test);
 		expect(restored2.object!.test2).toBe(object2.test2);

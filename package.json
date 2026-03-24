@@ -1,7 +1,7 @@
 {
   "name": "@h3l1os/mp4vault",
-  "version": "2.0.0",
-  "description": "Hide and extract files within MP4 video containers with AES-256-GCM encryption",
+  "version": "2.1.0",
+  "description": "Hide and extract files within MP4, JPEG, and PNG containers with AES-256-GCM encryption",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -53,13 +53,11 @@
     "url": "https://github.com/h3l1os-sol/mp4vault/issues"
   },
   "dependencies": {
-    "debug": "^4.3.1",
-    "tmp": "^0.2.1"
+    "debug": "^4.3.1"
   },
   "devDependencies": {
     "@types/debug": "^4.1.12",
     "@types/node": "^25.4.0",
-    "@types/tmp": "^0.2.6",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",
     "vitest": "^4.0.18"

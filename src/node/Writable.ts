@@ -5,7 +5,7 @@ import type { IReadable, IWritable } from '../types.js';
 import { Readable } from './Readable.js';
 
 export class Writable implements IWritable {
-	private _uint8Array: Uint8Array = new Uint8Array([]);
+	private _chunks: Uint8Array[] = [];
 	private _filename: string | undefined;
 	private _prepared = false;
 	private _bytesWrote = 0;
@@ -18,10 +18,7 @@ export class Writable implements IWritable {
 	}
 
 	size(): number {
-		if (this._filename) {
-			return this._bytesWrote;
-		}
-		return this._uint8Array.length;
+		return this._bytesWrote;
 	}
 
 	async prepare(): Promise<void> {
@@ -46,10 +43,23 @@ export class Writable implements IWritable {
 			this._fp = null;
 			this._prepared = false;
 		}
+		this._chunks = [];
+	}
+
+	private _concat(): Uint8Array {
+		if (this._chunks.length === 0) return new Uint8Array(0);
+		if (this._chunks.length === 1) return this._chunks[0];
+		const result = new Uint8Array(this._bytesWrote);
+		let offset = 0;
+		for (const chunk of this._chunks) {
+			result.set(chunk, offset);
+			offset += chunk.length;
+		}
+		return result;
 	}
 
 	async saveToFile(filename: string): Promise<void> {
-		await fs.writeFile(filename, this._uint8Array);
+		await fs.writeFile(filename, this._concat());
 	}
 
 	async write(append: Uint8Array | number[]): Promise<void> {
@@ -63,11 +73,8 @@ export class Writable implements IWritable {
 			await this._fp.write(data, 0, data.length);
 			this._bytesWrote += data.length;
 		} else {
-			const ret = new Uint8Array(this._uint8Array.length + data.length);
-			ret.set(this._uint8Array, 0);
-			ret.set(data, this._uint8Array.length);
+			this._chunks.push(data);
 			this._bytesWrote += data.length;
-			this._uint8Array = ret;
 		}
 	}
 

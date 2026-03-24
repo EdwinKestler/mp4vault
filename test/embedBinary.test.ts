@@ -23,6 +23,7 @@ describe('EmbedBinary', () => {
 
 		const readable = await writable.toReadable();
 		const restored = await EmbedBinary.restoreFromReadable(readable);
+		await readable.close();
 		await (restored as Writable).saveToFile(path.join(__dirname, 'test_restored_raw.txt'));
 
 		const original = fs.readFileSync(path.join(__dirname, 'test.txt'), 'utf-8');
@@ -40,6 +41,7 @@ describe('EmbedBinary', () => {
 
 		const readable = await writable.toReadable();
 		const restored = await EmbedBinary.restoreFromReadable(readable, { key });
+		await readable.close();
 		await (restored as Writable).saveToFile(path.join(__dirname, 'test_restored_key.txt'));
 
 		const original = fs.readFileSync(path.join(__dirname, 'test.txt'), 'utf-8');
@@ -57,6 +59,7 @@ describe('EmbedBinary', () => {
 
 		const readable = await writable.toReadable();
 		const restored = await EmbedBinary.restoreFromReadable(readable, { password });
+		await readable.close();
 		await (restored as Writable).saveToFile(path.join(__dirname, 'test_restored_pass.txt'));
 
 		const original = fs.readFileSync(path.join(__dirname, 'test.txt'), 'utf-8');
@@ -80,6 +83,7 @@ describe('EmbedBinary', () => {
 
 		const readable = await writable.toReadable();
 		const restored = await EmbedBinary.restoreFromReadable(readable, { password }, 100000, expectedSize);
+		await readable.close();
 		await (restored as Writable).saveToFile(path.join(__dirname, 'test_restored_pass.txt'));
 
 		const original = fs.readFileSync(path.join(__dirname, 'test.txt'), 'utf-8');

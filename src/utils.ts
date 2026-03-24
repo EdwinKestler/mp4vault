@@ -1,6 +1,9 @@
-import tmp from 'tmp';
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
+import crypto from 'crypto';
 
 export function tmpFileSync(): string {
-	const tmpobj = tmp.fileSync();
-	return tmpobj.name;
+	const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'mp4vault-'));
+	return path.join(dir, crypto.randomUUID());
 }

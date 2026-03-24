@@ -170,7 +170,6 @@ export class EmbedObject {
 
 		delete params.iv;
 		delete params.salt;
-		await readable.close();
 
 		params.readBytes = readBytes;
 		return new EmbedObject(params);

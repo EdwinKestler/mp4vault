@@ -34,7 +34,14 @@
       "Bash(npx vitest run test/e2e.test.ts)",
       "Bash(git remote set-url upstream https://github.com/h3l1os/mp4vault.git)",
       "Bash(npm pack --dry-run)",
-      "Bash(git remote set-url upstream https://github.com/h3l1os/mp4vault.git)"
+      "Bash(git remote set-url upstream https://github.com/h3l1os/mp4vault.git)",
+      "Read(//home/kestl/github/h3l1os-next/**)",
+      "Read(//home/kestl/github/h3l1os-next/src/**)",
+      "Read(//home/kestl/github/h3l1os-anchor/**)",
+      "Bash(grep -r \"mp4vault\\\\|@h3l1os\\\\|mp4steg\\\\|MP4\\\\|Writable\\\\|Convert\" /home/kestl/github/h3l1os-next/*.md)",
+      "Read(//home/kestl/github/**)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "additionalDirectories": [
       "/home/kestl/.claude/projects/-home-kestl-github-mp4vault"

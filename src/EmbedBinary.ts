@@ -156,8 +156,6 @@ export class EmbedBinary {
 				}
 			}
 
-			await readable.close();
-
 			return writable;
 		}
 

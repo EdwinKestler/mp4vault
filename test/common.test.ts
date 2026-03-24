@@ -134,4 +134,63 @@ describe('Pack', () => {
 		const packedHuge = Pack.pack('>' + 'Q'.repeat(10000), new Uint8Array(10000) as unknown as unknown[]);
 		expect(packedHuge.length).toBe(10000 * 8);
 	});
+
+	it('round-trips >I (uint32)', () => {
+		for (const v of [0, 1, 255, 65535, 4294967295]) {
+			const packed = Pack.pack('>I', [v]);
+			expect(packed.length).toBe(4);
+			const [unpacked] = Pack.unpack('>I', packed);
+			expect(unpacked).toBe(v);
+		}
+	});
+
+	it('round-trips >Q (uint64)', () => {
+		for (const v of [0, 1, 4294967296, 281474976710656]) {
+			const packed = Pack.pack('>Q', [v]);
+			expect(packed.length).toBe(8);
+			const [unpacked] = Pack.unpack('>Q', packed);
+			expect(unpacked).toBe(v);
+		}
+	});
+
+	it('round-trips >4s (ASCII string)', () => {
+		for (const s of ['ftyp', 'mdat', 'moov', 'stco']) {
+			const packed = Pack.pack('>4s', [s]);
+			expect(packed.length).toBe(4);
+			const [unpacked] = Pack.unpack('>4s', packed);
+			expect(unpacked).toBe(s);
+		}
+	});
+
+	it('round-trips >II (two uint32)', () => {
+		const packed = Pack.pack('>II', [100, 200]);
+		expect(packed.length).toBe(8);
+		const result = Pack.unpack('>II', packed);
+		expect(result).toEqual([100, 200]);
+	});
+
+	it('round-trips >I4s (uint32 + string)', () => {
+		const packed = Pack.pack('>I4s', [42, 'ftyp']);
+		expect(packed.length).toBe(8);
+		const result = Pack.unpack('>I4s', packed);
+		expect(result[0]).toBe(42);
+		expect(result[1]).toBe('ftyp');
+	});
+
+	it('round-trips >I4sQ (uint32 + string + uint64)', () => {
+		const packed = Pack.pack('>I4sQ', [1, 'mdat', 5000000000]);
+		expect(packed.length).toBe(16);
+		const result = Pack.unpack('>I4sQ', packed);
+		expect(result[0]).toBe(1);
+		expect(result[1]).toBe('mdat');
+		expect(result[2]).toBe(5000000000);
+	});
+
+	it('round-trips repeated >IIIII', () => {
+		const values = [10, 20, 30, 40, 50];
+		const packed = Pack.pack('>' + 'I'.repeat(5), values);
+		expect(packed.length).toBe(20);
+		const result = Pack.unpack('>' + 'I'.repeat(5), packed);
+		expect(result).toEqual(values);
+	});
 });
