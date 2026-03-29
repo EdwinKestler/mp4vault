@@ -2,9 +2,11 @@
 
 **Audience:** AI agents working on the h3l1os ecosystem (h3l1os-next frontend or h3l1os-anchor Solana program).
 
-**What it does:** Hides files inside MP4 video containers with AES-256-GCM encryption. The output MP4 remains a valid, playable video — the embedded data is invisible to media players.
+**What it does:** Hides files inside MP4 video containers and JPEG/PNG images with AES-256-GCM encryption. Output files remain valid, playable videos / viewable images — embedded data is invisible.
 
 **Where it runs:** Node.js only (server-side). It uses Node.js `crypto` module. It does NOT run in the browser. All frontend usage goes through Next.js API routes.
+
+**Version:** 2.1.0 — Adds `ImageVault` for JPEG/PNG steganography alongside `MP4`.
 
 ---
 
@@ -43,8 +45,10 @@
 ┌─────────────────────────────────────────────────────────────────┐
 │  SERVER (Next.js API routes, Node.js runtime)                   │
 │                                                                 │
-│  /api/vault/embed   ──► @h3l1os/mp4vault (MP4 + AES-256-GCM)   │
-│  /api/vault/extract ──► @h3l1os/mp4vault (decrypt + extract)    │
+│  /api/vault/embed   ──► @h3l1os/mp4vault MP4 class (AES-256-GCM)│
+│  /api/vault/extract ──► @h3l1os/mp4vault MP4 class (extract)   │
+│  /api/vault/image-embed   ──► ImageVault class (JPEG/PNG)       │
+│  /api/vault/image-extract ──► ImageVault class (extract)        │
 │                                                                 │
 │  Temp files: written to os.tmpdir(), cleaned up in finally {}   │
 └─────────────────────────────────────────────────────────────────┘
@@ -289,7 +293,31 @@ const writable = new Writable({ filename: outputPath });
 await mp4.embed(writable);
 ```
 
-### 4.6 API surface
+### 4.6 ImageVault (JPEG/PNG) — same API as MP4
+
+```typescript
+import { ImageVault, Writable, Convert } from "@h3l1os/mp4vault";
+
+// Embed a file inside a JPEG
+const img = new ImageVault();
+img.setKey(Convert.hexStringToBuffer("000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f"));
+await img.loadFile({ filename: "/path/to/photo.jpg" });  // also works with .png
+await img.embedFile({ filename: "/path/to/secret.pdf" });
+const writable = new Writable({ filename: "/path/to/output.jpg" });
+await img.embed(writable);
+
+// Extract from an image
+const img2 = new ImageVault();
+img2.setKey(key);
+await img2.loadFile({ filename: "/path/to/output.jpg" });
+const files = img2.getEmbedFiles();
+const extracted = await img2.extractFile(0);
+await (extracted as Writable).saveToFile("/path/to/restored.pdf");
+```
+
+ImageVault auto-detects JPEG vs PNG from the file header. Supports the same encryption modes, mixed public/private files, and metadata as MP4.
+
+### 4.7 API surface
 
 | Class | Method | Signature | Description |
 |-------|--------|-----------|-------------|
@@ -301,6 +329,7 @@ await mp4.embed(writable);
 | `MP4` | `getEmbedFiles` | `(): FileRecord[]` | List embedded files in a loaded MP4 |
 | `MP4` | `extractFile` | `(index, writable?): Promise<IWritable>` | Extract embedded file by index |
 | `MP4` | `getExpectedSize` | `(): Promise<number>` | Get expected output size before writing |
+| `ImageVault` | (all above) | (same signatures) | Same API — works with JPEG and PNG instead of MP4 |
 | `Writable` | constructor | `({ filename? })` | With filename: writes to disk. Without: in-memory |
 | `Writable` | `saveToFile` | `(filename): Promise<void>` | Save in-memory buffer to disk |
 | `Writable` | `toReadable` | `(): Promise<IReadable>` | Convert to readable for re-processing |
@@ -575,16 +604,17 @@ Viewer {
 
 | File | What it does |
 |------|-------------|
-| `src/MP4.ts` | Core: parse MP4, embed files, extract files, adjust offsets |
+| `src/MP4.ts` | MP4 container: parse atoms, embed files, extract files, adjust offsets |
+| `src/ImageVault.ts` | JPEG/PNG container: parse markers/chunks, embed after EOI/IEND |
 | `src/AES.ts` | AES-256-GCM encrypt/decrypt using Node.js `crypto` |
 | `src/Embed.ts` | Coordinates embedding: headers, file list, write sequence |
 | `src/EmbedBinary.ts` | Embeds/extracts a single binary file (with optional encryption) |
 | `src/EmbedObject.ts` | Embeds/extracts a JSON object (used for file list headers) |
 | `src/Atom.ts` | MP4 atom/box parsing and writing |
 | `src/Convert.ts` | Hex↔Buffer, JSON↔Buffer, random byte generation |
-| `src/Pack.ts` | Binary struct pack/unpack (big-endian integers) |
+| `src/Pack.ts` | Binary struct pack/unpack (native Buffer, big-endian integers) |
 | `src/node/Readable.ts` | File reader (uses `fs/promises`) |
-| `src/node/Writable.ts` | File writer (disk or in-memory buffer) |
+| `src/node/Writable.ts` | File writer (disk or chunked in-memory) |
 | `src/types.ts` | Interfaces: IReadable, IWritable, FileRecord, EmbedFileParams |
 
 ### h3l1os-next frontend

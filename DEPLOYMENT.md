@@ -7,7 +7,7 @@
 
 ### 1.2 Publish @h3l1os/mp4vault — DONE
 - Published: https://www.npmjs.com/package/@h3l1os/mp4vault
-- Version: 2.0.0
+- Version: 2.1.0 (adds ImageVault for JPEG/PNG, internal modernization)
 
 ---
 

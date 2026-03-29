@@ -41,10 +41,43 @@
       "Bash(grep -r \"mp4vault\\\\|@h3l1os\\\\|mp4steg\\\\|MP4\\\\|Writable\\\\|Convert\" /home/kestl/github/h3l1os-next/*.md)",
       "Read(//home/kestl/github/**)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(npm whoami:*)",
+      "Bash(ls /home/kestl/github/h3l1os-next/*.md /home/kestl/github/h3l1os-next/DEPLOYMENT*)",
+      "Bash(ls /home/kestl/github/mp4vault/*.md /home/kestl/github/mp4vault/CLAUDE.md)",
+      "Bash(mkdir -p /tmp/vault-demo/private)",
+      "Bash(cp /home/kestl/github/mp4vault/test/image1.jpg /home/kestl/github/mp4vault/test/image2.png /tmp/vault-demo/private/)",
+      "Read(//tmp/vault-demo/**)",
+      "Bash(node scripts/vault-batch.mjs encrypt /tmp/vault-demo/private --cover test/image.jpg --password \"demo-secret\" --output /tmp/vault-demo/vault)",
+      "Bash(node scripts/vault-batch.mjs decrypt /tmp/vault-demo/vault --password \"demo-secret\" --output /tmp/vault-demo/restored)",
+      "Bash(npx vitest:*)",
+      "Bash(node scripts/vault-keygen.mjs generate)",
+      "Bash(node scripts/vault-keygen.mjs derive wallet image testing vault digital asset any safe)",
+      "Bash(node scripts/vault-keygen.mjs random)",
+      "Bash(mkdir -p /tmp/vault-demo/mixed)",
+      "Bash(cp /home/kestl/github/mp4vault/test/test.txt /tmp/vault-demo/mixed/)",
+      "Bash(cp /home/kestl/github/mp4vault/test/image1.jpg /tmp/vault-demo/mixed/)",
+      "Bash(cp /home/kestl/github/mp4vault/test/image2.png /tmp/vault-demo/mixed/)",
+      "Bash(cp /home/kestl/github/mp4vault/test/pdf1.pdf /tmp/vault-demo/mixed/)",
+      "Bash(node scripts/vault-batch.mjs encrypt /tmp/vault-demo/mixed --cover test/test.mp4 --password \"demo\" --output /tmp/vault-demo/vault-mixed)",
+      "Bash(rm -rf /tmp/vault-demo/vault-mixed /tmp/vault-demo/restored-mixed)",
+      "Bash(node scripts/vault-batch.mjs decrypt /tmp/vault-demo/vault-mixed --password \"demo\" --output /tmp/vault-demo/restored-mixed)",
+      "Bash(node scripts/vault-batch.mjs encrypt /tmp/vault-demo/mixed --cover test/test.mp4 --password \"demo\" --output /tmp/vault-demo/test1)",
+      "Bash(node scripts/vault-batch.mjs encrypt /tmp/vault-demo/mixed --cover test/test.mp4 --password \"demo\" --output /tmp/vault-demo/test2 --mode video)",
+      "Bash(node scripts/vault-batch.mjs encrypt /tmp/vault-demo/mixed --cover test/image.jpg --password \"demo\" --output /tmp/vault-demo/test3 --mode image)",
+      "Read(//home/kestl/**)",
+      "Bash(npm run:*)",
+      "Bash(npx webpack:*)",
+      "Bash(find /home/kestl/github/Video-Player-Chrome-Extension -name *.png -o -name *.ico -o -name *.svg)",
+      "Bash(node -e \":*)"
     ],
     "additionalDirectories": [
-      "/home/kestl/.claude/projects/-home-kestl-github-mp4vault"
+      "/home/kestl/.claude/projects/-home-kestl-github-mp4vault",
+      "/home/kestl/github/h3l1os-next",
+      "/tmp/vault-demo/vault",
+      "/home/kestl/github/Video-Player-Chrome-Extension/src",
+      "/home/kestl/github/Video-Player-Chrome-Extension"
     ]
   }
 }

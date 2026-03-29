@@ -83,13 +83,16 @@ export class ImageVault {
 			throw new Error('No embedded files found in this image');
 		}
 
-		return await this._initialEmbed.restoreBinary(
+		const result = await this._initialEmbed.restoreBinary(
 			this._readable!,
 			{ key: this._key || undefined, password: this._password || undefined },
 			n,
 			this._payloadOffset,
 			writable,
 		);
+
+		await this._readable!.close();
+		return result;
 	}
 
 	async embed(writable?: IWritable): Promise<IWritable> {

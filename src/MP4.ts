@@ -186,13 +186,16 @@ export class MP4 {
 		const mdat = this.findAtom('mdat')!;
 		const offset = mdat.start + mdat.header_size;
 
-		return await this._initialEmbed!.restoreBinary(
+		const result = await this._initialEmbed!.restoreBinary(
 			this._readable!,
 			{ key: this._key || undefined, password: this._password || undefined },
 			n,
 			offset,
 			writable,
 		);
+
+		await this._readable!.close();
+		return result;
 	}
 
 	async embed(writable?: IWritable): Promise<IWritable> {

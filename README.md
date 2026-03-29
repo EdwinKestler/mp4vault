@@ -1,14 +1,14 @@
 # @h3l1os/mp4vault
 
-Hide and extract files within MP4 video containers with optional AES-256-GCM encryption.
+Hide and extract files within MP4, JPEG, and PNG containers with optional AES-256-GCM encryption.
 
 ## Features
 
-- Embed any file (text, images, binaries) inside an MP4 container
+- Embed any file (text, images, binaries) inside MP4, JPEG, or PNG containers
 - AES-256-GCM authenticated encryption with key or password
 - Mix public and encrypted files in the same container
 - Attach metadata to embedded files
-- Preserves MP4 playability — output files remain valid MP4 videos
+- Preserves container validity — output files remain playable videos / viewable images
 - Dual ESM/CJS output
 - Node.js 18+
 
@@ -20,7 +20,7 @@ npm install @h3l1os/mp4vault
 
 ## Usage
 
-### Embed a file with key encryption
+### MP4: Embed a file with key encryption
 
 ```typescript
 import { MP4, Convert, Writable } from '@h3l1os/mp4vault';
@@ -37,7 +37,7 @@ const writable = new Writable({ filename: 'output.mp4' });
 await mp4.embed(writable);
 ```
 
-### Embed a file with password encryption
+### MP4: Embed with password encryption
 
 ```typescript
 const mp4 = new MP4();
@@ -50,14 +50,40 @@ const writable = new Writable({ filename: 'output.mp4' });
 await mp4.embed(writable);
 ```
 
+### Image: Embed a file inside a JPEG
+
+```typescript
+import { ImageVault, Writable } from '@h3l1os/mp4vault';
+
+const img = new ImageVault();
+img.setPassword('my-secret');
+await img.loadFile({ filename: 'photo.jpg' });
+
+await img.embedFile({ filename: 'secret.pdf' });
+
+const writable = new Writable({ filename: 'output.jpg' });
+await img.embed(writable);
+```
+
+### Image: Embed inside a PNG
+
+```typescript
+const img = new ImageVault();
+img.setKey(key);
+await img.loadFile({ filename: 'image.png' });
+
+await img.embedFile({ filename: 'document.txt' });
+
+const writable = new Writable({ filename: 'output.png' });
+await img.embed(writable);
+```
+
 ### Embed without encryption
 
 ```typescript
 const mp4 = new MP4();
 await mp4.loadFile({ filename: 'video.mp4' });
-
 await mp4.embedFile({ filename: 'document.txt' });
-
 const writable = new Writable({ filename: 'output.mp4' });
 await mp4.embed(writable);
 ```
@@ -122,7 +148,7 @@ const expectedBytes = await mp4.getExpectedSize();
 
 ## API
 
-### `MP4`
+### `MP4` — Video container steganography
 
 | Method | Description |
 |--------|-------------|
@@ -136,6 +162,21 @@ const expectedBytes = await mp4.getExpectedSize();
 | `extractFile(index, writable?)` | Extract an embedded file by index |
 | `findAtom(name)` | Find a top-level atom by name |
 | `findAtoms(atoms, name)` | Recursively find atoms by name |
+
+### `ImageVault` — JPEG/PNG image steganography
+
+Same API as `MP4`. Supports JPEG and PNG (auto-detected from file header).
+
+| Method | Description |
+|--------|-------------|
+| `setKey(key: Buffer)` | Set AES encryption key (16, 24, or 32 bytes) |
+| `setPassword(password: string)` | Set password for PBKDF2 key derivation |
+| `loadFile({ filename })` | Parse a JPEG or PNG file |
+| `embedFile({ filename, meta?, key?, password? })` | Add a file to embed |
+| `embed(writable?)` | Write the image with embedded data |
+| `getExpectedSize()` | Get the expected output size in bytes |
+| `getEmbedFiles()` | List files embedded in the loaded image |
+| `extractFile(index, writable?)` | Extract an embedded file by index |
 
 ### `Convert`
 
@@ -161,20 +202,28 @@ const expectedBytes = await mp4.getExpectedSize();
 - Random 12-byte IV and 16-byte salt per encryption operation via `crypto.randomBytes()`
 - Uses Node.js native `crypto` module — no third-party crypto dependencies
 
-## Binary format
+## How it works
 
-Embedded data is placed at the start of the `mdat` atom payload:
+### MP4
+
+Embedded data is placed at the start of the `mdat` atom payload. Sample offsets in `stco`/`co64` atoms are adjusted so the video remains playable.
 
 ```
-[public header][encrypted header][file1 data][file2 data]...
+[ftyp][free][mdat: [public header][encrypted header][files...][original video data]][moov (offsets adjusted)]
 ```
 
-Each header and file follows this format:
+### JPEG
+
+Data is appended after the EOI marker (`FF D9`). All JPEG decoders stop at EOI, so the appended data is invisible to image viewers.
+
+### PNG
+
+Data is appended after the IEND chunk. All PNG decoders stop after IEND.
+
+### Per-chunk binary format
 
 - **Unencrypted**: `[flag 1B][type 1B][payload]`
 - **Encrypted**: `[flag 1B][type 1B][salt 16B][IV 12B][ciphertext][authTag 16B]`
-
-Sample offsets in `stco`/`co64` atoms are adjusted to account for the inserted data.
 
 ## Development
 
@@ -188,10 +237,11 @@ npm run test:watch   # Watch mode
 
 ### Test suite
 
-- **32 tests** across 7 test files
+- **48 tests** across 8 test files
 - Unit tests: AES encryption, Pack binary operations, Convert utilities
 - Integration tests: EmbedBinary, EmbedObject, EmbedMeta
-- End-to-end tests: full embed/extract cycles with key, password, no encryption, mixed files, binary files, metadata, re-embedding, size validation, wrong key rejection
+- End-to-end tests: MP4 full embed/extract cycles, ImageVault JPEG/PNG cycles
+- Coverage: key, password, no encryption, mixed files, binary files, metadata, re-embedding, size validation, wrong key rejection, format validity
 
 ## Project structure
 
@@ -199,20 +249,20 @@ npm run test:watch   # Watch mode
 src/
   index.ts          # Public API exports
   MP4.ts            # MP4 parser, embedder, extractor
+  ImageVault.ts     # JPEG/PNG parser, embedder, extractor
   Atom.ts           # MP4 atom/box representation
   AES.ts            # AES-256-GCM encryption
   Embed.ts          # Embedding coordinator
   EmbedBinary.ts    # Binary file embedding
-  EmbedObject.ts    # JSON object embedding
+  EmbedObject.ts    # JSON object embedding (headers)
   Convert.ts        # Buffer/hex/JSON utilities
-  Pack.ts           # Binary pack/unpack (struct encoding)
-  jspack.js         # Vendored jspack library
+  Pack.ts           # Binary pack/unpack (native Buffer methods)
   constants.ts      # Buffer size, max header, max int32
   types.ts          # IReadable, IWritable, FileRecord interfaces
   utils.ts          # Temp file helper
   node/
     Readable.ts     # Node.js file reader
-    Writable.ts     # Node.js file writer
+    Writable.ts     # Node.js file writer (chunked, O(n))
 test/
   common.test.ts    # AES, Convert, Pack unit tests
   embedBinary.test.ts
@@ -220,7 +270,8 @@ test/
   embedMeta.test.ts
   mixed.test.ts
   mp4.test.ts
-  e2e.test.ts       # End-to-end embed/extract tests
+  e2e.test.ts       # MP4 end-to-end embed/extract tests
+  imageVault.test.ts # JPEG/PNG end-to-end tests
 ```
 
 ## License
