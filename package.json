@@ -53,7 +53,8 @@
     "url": "https://github.com/h3l1os-sol/mp4vault/issues"
   },
   "dependencies": {
-    "debug": "^4.3.1"
+    "debug": "^4.3.1",
+    "sharp": "^0.34.5"
   },
   "devDependencies": {
     "@types/debug": "^4.1.12",

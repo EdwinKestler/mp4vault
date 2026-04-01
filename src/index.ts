@@ -7,6 +7,8 @@ export { Embed } from './Embed.js';
 export { EmbedBinary } from './EmbedBinary.js';
 export { EmbedObject } from './EmbedObject.js';
 export { Pack } from './Pack.js';
+export { Stealth } from './Stealth.js';
+export { LSB } from './LSB.js';
 export { Readable } from './node/Readable.js';
 export { Writable } from './node/Writable.js';
 export type { IReadable, IWritable, FileRecord } from './types.js';

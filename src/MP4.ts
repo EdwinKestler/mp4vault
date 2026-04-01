@@ -15,6 +15,9 @@ export class MP4 {
 	private _embed: Embed | null = null;
 	private _key: Buffer | null = null;
 	private _password: string | null = null;
+	private _stealth = false;
+	private _innerKey: Buffer | null = null;
+	private _innerPassword: string | null = null;
 	_atoms: Atom[] = [];
 	private _initialMdatStart: number | null = null;
 	private _initialEmbed: Embed | null = null;
@@ -36,6 +39,23 @@ export class MP4 {
 		this._key = null;
 	}
 
+	setStealth(enabled: boolean): void {
+		if (enabled && !this._key) {
+			throw new Error('Stealth mode requires a raw key (setKey), not a password');
+		}
+		this._stealth = enabled;
+	}
+
+	setInnerKey(key: Buffer): void {
+		this._innerKey = key;
+		this._innerPassword = null;
+	}
+
+	setInnerPassword(password: string): void {
+		this._innerPassword = password;
+		this._innerKey = null;
+	}
+
 	async loadFile(params: { filename: string }): Promise<void> {
 		if (!params || !params.filename) {
 			throw new Error('filename is required');
@@ -51,9 +71,16 @@ export class MP4 {
 		meta?: Record<string, unknown>;
 		key?: Buffer | null;
 		password?: string | null;
+		inner?: boolean;
 	}): Promise<void> {
 		if (!this._embed) {
-			this._embed = new Embed({ key: this._key, password: this._password });
+			this._embed = new Embed({
+				key: this._key,
+				password: this._password,
+				stealth: this._stealth,
+				innerKey: this._innerKey,
+				innerPassword: this._innerPassword,
+			});
 		}
 		await this._embed.addFile(params);
 	}
@@ -177,7 +204,13 @@ export class MP4 {
 		this._initialEmbed = new Embed();
 		await this._initialEmbed.restoreFromReadable(
 			this._readable!,
-			{ key: this._key || undefined, password: this._password },
+			{
+				key: this._key || undefined,
+				password: this._password,
+				innerKey: this._innerKey || undefined,
+				innerPassword: this._innerPassword,
+				stealth: this._stealth,
+			},
 			offset,
 		);
 	}
@@ -188,7 +221,13 @@ export class MP4 {
 
 		const result = await this._initialEmbed!.restoreBinary(
 			this._readable!,
-			{ key: this._key || undefined, password: this._password || undefined },
+			{
+				key: this._key || undefined,
+				password: this._password || undefined,
+				innerKey: this._innerKey || undefined,
+				innerPassword: this._innerPassword || undefined,
+				stealth: this._stealth,
+			},
 			n,
 			offset,
 			writable,

@@ -70,14 +70,24 @@
       "Bash(npm run:*)",
       "Bash(npx webpack:*)",
       "Bash(find /home/kestl/github/Video-Player-Chrome-Extension -name *.png -o -name *.ico -o -name *.svg)",
-      "Bash(node -e \":*)"
+      "Bash(node -e \":*)",
+      "Bash(curl -sL \"https://pbs.twimg.com/media/GnE7lJ6XkAA3ztO?format=jpg&name=large\" -o /tmp/twitter-test.jpg)",
+      "Read(//tmp/**)",
+      "Read(//mnt/e/kestl/Downloads/**)",
+      "Bash(npm list:*)",
+      "Bash(npm install:*)",
+      "Bash(node scripts/lsb-encode.mjs info test/image.jpg)",
+      "Bash(node scripts/lsb-encode.mjs encode test/image.jpg \"QmYwAPJzv5CZsnA625s3Xf2nemtYgPpHdWEz79ojWnPbdG\" --output /tmp/lsb-test.png)",
+      "Bash(node scripts/lsb-encode.mjs decode /tmp/lsb-test.png)",
+      "Bash(node -e:*)"
     ],
     "additionalDirectories": [
       "/home/kestl/.claude/projects/-home-kestl-github-mp4vault",
       "/home/kestl/github/h3l1os-next",
       "/tmp/vault-demo/vault",
       "/home/kestl/github/Video-Player-Chrome-Extension/src",
-      "/home/kestl/github/Video-Player-Chrome-Extension"
+      "/home/kestl/github/Video-Player-Chrome-Extension",
+      "/home/kestl/github/dct-stego"
     ]
   }
 }

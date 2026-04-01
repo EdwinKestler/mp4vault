@@ -1,6 +1,7 @@
 import { Pack } from './Pack.js';
 import { AES } from './AES.js';
 import { Convert } from './Convert.js';
+import { Stealth } from './Stealth.js';
 import { MAX_HEADER_SIZE } from './constants.js';
 import type { IReadable, IWritable } from './types.js';
 
@@ -86,21 +87,64 @@ export class EmbedObject {
 			readBytes?: number;
 			iv?: Buffer;
 			salt?: Buffer;
+			stealth?: boolean;
+			stealthKey?: Buffer;
+			chunkIndex?: number;
 		} = {},
 		offset = 0,
 	): Promise<EmbedObject> {
-		const firstByte = (await readable.getSlice(offset + 0, 1))[0];
-		const typeByte = (await readable.getSlice(offset + 1, 1))[0];
+		let firstByte = (await readable.getSlice(offset + 0, 1))[0];
+		let typeByte = (await readable.getSlice(offset + 1, 1))[0];
+
+		// Stealth auto-detect: if flag/type don't parse as valid and we have a stealth key, try decrypting
+		let stealthActive = false;
+		if (params.stealth && params.stealthKey) {
+			const headerData = await readable.getSlice(offset, Stealth.HEADER_SIZE);
+			const decrypted = Stealth.decryptHeader(
+				Buffer.from(headerData), params.stealthKey, params.chunkIndex || 0
+			);
+			if (Stealth.isValidHeader(decrypted)) {
+				stealthActive = true;
+				firstByte = decrypted[0];
+				typeByte = decrypted[1];
+				// Replace salt and IV with decrypted values — they'll be used below
+				params.salt = Buffer.from(decrypted.subarray(2, 2 + AES.saltByteLength));
+				params.iv = Buffer.from(decrypted.subarray(2 + AES.saltByteLength, 2 + AES.saltByteLength + AES.ivByteLength));
+			}
+		} else if (!Convert.isByteIn(firstByte, 2, 0) && !Convert.isByteIn(firstByte, 2, 1)) {
+			// Not valid normal mode either — try stealth if key available
+			if (params.stealthKey) {
+				const headerData = await readable.getSlice(offset, Stealth.HEADER_SIZE);
+				const decrypted = Stealth.decryptHeader(
+					Buffer.from(headerData), params.stealthKey, params.chunkIndex || 0
+				);
+				if (Stealth.isValidHeader(decrypted)) {
+					stealthActive = true;
+					firstByte = decrypted[0];
+					typeByte = decrypted[1];
+					params.salt = Buffer.from(decrypted.subarray(2, 2 + AES.saltByteLength));
+					params.iv = Buffer.from(decrypted.subarray(2 + AES.saltByteLength, 2 + AES.saltByteLength + AES.ivByteLength));
+				}
+			}
+		}
 
 		let size: number | null = null;
 		let readBytes = 2;
 
 		if (Convert.isByteIn(firstByte, 2, 1)) {
 			// encrypted
-			const salt = await readable.getSlice(offset + 2, AES.saltByteLength);
-			readBytes += AES.saltByteLength;
+			let salt: Uint8Array;
+			let iv: Uint8Array;
 
-			const iv = await readable.getSlice(offset + 2 + AES.saltByteLength, AES.ivByteLength);
+			if (stealthActive && params.salt && params.iv) {
+				// Salt and IV were already recovered from stealth decryption
+				salt = params.salt;
+				iv = params.iv;
+			} else {
+				salt = await readable.getSlice(offset + 2, AES.saltByteLength);
+				iv = await readable.getSlice(offset + 2 + AES.saltByteLength, AES.ivByteLength);
+			}
+			readBytes += AES.saltByteLength;
 			readBytes += AES.ivByteLength;
 
 			const headerDataOffset = offset + 2 + AES.saltByteLength + AES.ivByteLength;
@@ -180,6 +224,11 @@ export class EmbedObject {
 		await writable.write(binary);
 	}
 
+	async writeToStealth(writable: IWritable, stealthKey: Buffer, chunkIndex: number): Promise<void> {
+		const binary = this.getEncryptedStealth(stealthKey, chunkIndex);
+		await writable.write(binary);
+	}
+
 	getBinary(): Uint8Array {
 		if (this._key || this._password) {
 			return this.getEncrypted();
@@ -224,6 +273,20 @@ export class EmbedObject {
 		ret.set(iv, pos); pos += iv.length;
 		ret.set(ciphertext, pos); pos += ciphertext.length;
 		ret.set(authTag, pos);
+
+		return ret;
+	}
+
+	getEncryptedStealth(stealthKey: Buffer, chunkIndex: number): Uint8Array {
+		const raw = this.getEncrypted();
+
+		// CTR-encrypt the first 30 bytes (flag + type + salt + IV)
+		const header = Buffer.from(raw.subarray(0, Stealth.HEADER_SIZE));
+		const encryptedHeader = Stealth.encryptHeader(header, stealthKey, chunkIndex);
+
+		const ret = new Uint8Array(raw.length);
+		ret.set(encryptedHeader, 0);
+		ret.set(raw.subarray(Stealth.HEADER_SIZE), Stealth.HEADER_SIZE);
 
 		return ret;
 	}

@@ -30,6 +30,7 @@ export interface FileRecord {
   meta?: Record<string, unknown>;
   isEncrypted?: boolean;
   offset?: number;
+  inner?: boolean;
 }
 
 export interface EmbedFileParams {
@@ -38,6 +39,7 @@ export interface EmbedFileParams {
   meta?: Record<string, unknown>;
   key?: Buffer | null;
   password?: string | null;
+  inner?: boolean;
 }
 
 // Forward declaration to avoid circular imports
