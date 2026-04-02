@@ -237,10 +237,12 @@ npm run test:watch   # Watch mode
 
 ### Test suite
 
-- **48 tests** across 8 test files
+- **70 tests** across 10 test files
 - Unit tests: AES encryption, Pack binary operations, Convert utilities
 - Integration tests: EmbedBinary, EmbedObject, EmbedMeta
 - End-to-end tests: MP4 full embed/extract cycles, ImageVault JPEG/PNG cycles
+- Stealth tests: encrypted structural markers, auto-detection, backward compatibility
+- Deniable tests: outer-only, inner-only, both keys, mixed key types
 - Coverage: key, password, no encryption, mixed files, binary files, metadata, re-embedding, size validation, wrong key rejection, format validity
 
 ## Project structure
@@ -248,21 +250,27 @@ npm run test:watch   # Watch mode
 ```
 src/
   index.ts          # Public API exports
-  MP4.ts            # MP4 parser, embedder, extractor
-  ImageVault.ts     # JPEG/PNG parser, embedder, extractor
+  MP4.ts            # MP4 container parser + embed/extract
+  ImageVault.ts     # JPEG/PNG container parser + embed/extract
   Atom.ts           # MP4 atom/box representation
-  AES.ts            # AES-256-GCM encryption
-  Embed.ts          # Embedding coordinator
-  EmbedBinary.ts    # Binary file embedding
-  EmbedObject.ts    # JSON object embedding (headers)
+  AES.ts            # AES-256-GCM encryption + PBKDF2
+  Embed.ts          # Embedding coordinator (public/encrypted/inner layers)
+  EmbedBinary.ts    # Binary file embedding (with stealth support)
+  EmbedObject.ts    # JSON header embedding (with stealth support)
+  Stealth.ts        # AES-256-CTR encryption of structural marker bytes
+  LSB.ts            # LSB pixel-level steganography
   Convert.ts        # Buffer/hex/JSON utilities
   Pack.ts           # Binary pack/unpack (native Buffer methods)
   constants.ts      # Buffer size, max header, max int32
-  types.ts          # IReadable, IWritable, FileRecord interfaces
+  types.ts          # IReadable, IWritable, FileRecord (includes inner flag)
   utils.ts          # Temp file helper
   node/
     Readable.ts     # Node.js file reader
     Writable.ts     # Node.js file writer (chunked, O(n))
+scripts/
+  vault-batch.mjs   # Batch encrypt/decrypt folders
+  vault-keygen.mjs  # Generate/derive AES keys from mnemonics
+  lsb-encode.mjs    # LSB pixel-level encode/decode
 test/
   common.test.ts    # AES, Convert, Pack unit tests
   embedBinary.test.ts
@@ -270,9 +278,30 @@ test/
   embedMeta.test.ts
   mixed.test.ts
   mp4.test.ts
-  e2e.test.ts       # MP4 end-to-end embed/extract tests
+  e2e.test.ts       # MP4 end-to-end tests
   imageVault.test.ts # JPEG/PNG end-to-end tests
+  stealth.test.ts   # Stealth mode tests
+  deniable.test.ts  # Deniable dual-layer tests
 ```
+
+## Ecosystem
+
+| Package | Purpose |
+|---------|---------|
+| [@h3l1os/mp4vault](https://github.com/h3l1os-sol/mp4vault) | Vault container encryption (this package) |
+| [@h3l1os/dct-stego](https://github.com/h3l1os-sol/dct-stego) | DCT spread-spectrum JPEG steganography — survives social media re-compression |
+| [Chrome Extension](https://github.com/EdwinKestler/Video-Player-Chrome-Extension) | Vault Player — decrypt + play in browser, DCT extraction from right-clicked images |
+
+### Social media pipeline
+
+For images posted on Twitter/Instagram (which re-compress uploads), use `@h3l1os/dct-stego` to embed the IPFS address of a vault file into a public image:
+
+```
+Creator: vault file → IPFS → CID → dct-stego embeds CID into public JPEG → post to Twitter
+Viewer:  right-click → Chrome extension → DCT extracts CID → fetches vault from IPFS → decrypts
+```
+
+See the [@h3l1os/dct-stego README](https://github.com/h3l1os-sol/dct-stego) for the complete pipeline.
 
 ## License
 
